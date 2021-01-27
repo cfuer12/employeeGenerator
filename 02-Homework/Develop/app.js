@@ -10,26 +10,169 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
+const employees = [];
 
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
+// list of questions a user needs to answer for generating HTML webapage for employees
 
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
+const employeeQuestions = [
+    {
+        type: 'input',
+        name: 'name',
+        message: 'What is the person name?'
+    },
+    {
+        type: 'input',
+        name: 'id',
+        message: 'What is the persons ID number?'
+    },
+    {
+        type: 'input',
+        name: 'email',
+        message: 'Enter the employees email address.'
+    },
+    {
+        type: 'list',
+        name: 'employmentType',
+        message: 'Choose employment type:',
+        choices: ["Manager", "Engineer", "Intern"]
+    },
+]
 
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
+// start of the program, helps to generate the HTML file and adding the ammount of employees a user needs
 
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
+function init () {
+    inquirer.prompt (
+        {
+            type: 'list',
+            name: 'addEmployee',
+            message: ' Would you like to add another employee?',
+            choices: ['yes', 'no']
+        }
+    )
+    
+    .then((answers) => {
+        if (answers.addEmployee === 'yes') {
+            chooseType ();
+        }
+        else {
+            writeFile ();
+        }
+    })
+    .catch (error => {
+        if (error) {
+            console.error (error)
+        }
+    })
+}
 
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+// asynchronous function that waits for the user to input the ammount of people needed
+// starts when the user inputs 'yes' to the function when logged into the terminal
+
+async function writeFile () {
+    let renderEmployees = await render(employees);
+    fs.writeFile(outputPath, renderEmployees, function (err) {
+        if (err) console.log('error', err);
+    })
+    console.log("You have created an HTML file!")
+}
+
+// creates seperate employment catagories through the 'lib' path based on users input in terminal
+
+function chooseType () {
+    inquirer.prompt (employeeQuestions)
+    .then((answers) => {
+        if (answers.employmentType === "Manager") {
+            addManager (answers);
+        }
+        else if (answers.employmentType === "Intern") {
+            addIntern (answers);
+        }
+        else if (answers.employmentType === "Engineer") {
+            addEngineer (answers);
+        }
+        else {
+            console.log ("error");
+        }
+    })
+    .catch (error => {
+        if (error) {
+            console.error (error)
+        }
+    })
+}
+
+// adding each employees extra questions (office number, school and github)
+
+function addManager (managerAnswers) {
+    inquirer.prompt (
+        {
+            type: 'input',
+            name: 'officeNumber',
+            message: 'What is the managers office number?'
+        },
+    )
+
+    .then (async (answer) => {
+        const {name, id, email} = managerAnswers;
+        let newManager = await new Manager (name, id, email, answer.officeNumber);
+        employees.push (newManager);
+        console.table (employees)
+        init();
+    })
+
+    .catch (error => {
+        if (error) {
+            console.error (error)
+        }
+    })
+}
+
+function addIntern (internAnswers) {
+    inquirer.prompt (
+        {
+            type: 'input',
+            name: 'school',
+            message: 'What school do they attend?'
+        },
+    )
+
+    .then (async (answer) => {
+        const {name, id, email} = internAnswers;
+        let newIntern = await new Intern (name, id, email, answer.school);
+        employees.push (newIntern);
+        console.table (employees);
+        init();
+    })
+
+    .catch (error => {
+        if (error) {
+            comsole.error (error)
+        }
+    })
+}
+
+function addEngineer (engineerAnswers) {
+    inquirer.prompt (
+        {
+            type: 'input',
+            name: 'github',
+            message: 'What is their GitHub info?'
+        },
+    )
+
+    .then (async (answer) => {
+        const {name, id, email} = engineerAnswers;
+        let newEngineer = await new Engineer (name, id, email, answer.github);
+        employees.push (newEngineer);
+        console.table (employees);
+        init();
+    })
+
+    .catch (error => {
+        if (error) {
+            console.error (error)
+        }
+    })
+}
+
+init();

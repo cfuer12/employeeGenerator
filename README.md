@@ -9,4 +9,5 @@ Inquirer and Jest was needed in order to run the node program through the termin
 
 Test were also ran on this app to see if each JS file would pass by using npm run test, in which they seem to have. I was at first struggling with having them pass the first time around as I was missing syntax and mispelling a few words in the code. After finding out and reviewing it over and over, it all started to work just fine and pass.
 
-
+link to the video of the app working: ![Click here](https://drive.google.com/file/d/12A0vB89Uusdjf4-Ed6zgnW8Gh8JR02pv/view)
+link to GitHub: https://github.com/cfuer12/employeeGenerator 
